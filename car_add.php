@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     header("Location: dashboard.php"); exit;
 }
 ?>
-```php
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
