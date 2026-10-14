@@ -29,6 +29,46 @@ CREATE TABLE orders (
     FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
 );
 
+-- 1. Create the fourth table
+CREATE TABLE IF NOT EXISTS car_brands (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    brand_name VARCHAR(100) NOT NULL UNIQUE,
+    country VARCHAR(100) NOT NULL DEFAULT 'Unknown'
+);
+
+-- 2. Add existing car brands to the new table
+INSERT IGNORE INTO car_brands (brand_name)
+SELECT DISTINCT brand
+FROM cars
+WHERE brand IS NOT NULL AND brand <> '';
+
+-- 3. Add a column to link cars to their brands
+ALTER TABLE cars
+ADD COLUMN brand_id INT NULL;
+
+-- 4. Connect existing cars to their brands
+UPDATE cars
+JOIN car_brands
+    ON cars.brand = car_brands.brand_name
+SET cars.brand_id = car_brands.id;
+
+-- 5. Create the third relationship
+ALTER TABLE cars
+ADD CONSTRAINT fk_cars_brand
+FOREIGN KEY (brand_id)
+REFERENCES car_brands(id);
+
+-- 6. Check the results
+SELECT
+    cars.id,
+    cars.name,
+    car_brands.brand_name,
+    cars.price,
+    cars.stock
+FROM cars
+LEFT JOIN car_brands
+    ON cars.brand_id = car_brands.id;
+
 -- Demo passwords:
 -- admin123 / staff123 / customer123
 INSERT INTO users (name,email,password,role) VALUES
